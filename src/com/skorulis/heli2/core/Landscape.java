@@ -1,12 +1,16 @@
 package com.skorulis.heli2.core;
 
-import com.google.gwt.canvas.dom.client.Context2d;
-import com.google.gwt.canvas.dom.client.CssColor;
 import com.skorulis.heli2.base.Random;
 import com.skorulis.heli2.base.RectBoundBox;
 import com.skorulis.heli2.base.RenderComponent;
 import com.skorulis.heli2.base.UpdateComponent;
 
+
+import forplay.core.CanvasLayer;
+import forplay.core.GroupLayer;
+import forplay.core.Layer;
+import forplay.core.SurfaceLayer;
+import static forplay.core.ForPlay.*; 
 
 public class Landscape implements RenderComponent,UpdateComponent{
 
@@ -28,15 +32,17 @@ public class Landscape implements RenderComponent,UpdateComponent{
 	private static final int ABSOLUTE_MINGAP = 80;
 	private static final int MIN_CENTERGAP = 100;
 	private int bestX;
+	public CanvasLayer canvas;
 	
-	
-	public Landscape(int width,int height) {
+	public Landscape(int width,int height,GroupLayer layer) {
 		this.width = width;
 		this.height = height;
 		int segs = (width/SEGMENT_WIDTH)+1;
 		topHeight = new int[segs];
 		bottomHeight = new int[segs];
 		centerHeight = new int[segs];
+		canvas = graphics().createCanvasLayer(width, height);
+		layer.add(canvas);
 		reset();
 	}
 	
@@ -92,7 +98,8 @@ public class Landscape implements RenderComponent,UpdateComponent{
 		
 		if(Random.nextInt(100) >=chance && slideI > 20) {
 			int gap = (height - bottomHeight[position] - topHeight[position] -MIN_CENTERGAP);
-			centerHeight[position] = Math.max(0, Random.nextInt(gap));
+			centerHeight[position] = gap > 0?Random.nextInt(gap):0;
+			
 		} else {
 			centerHeight[position] = 0;
 		}
@@ -111,8 +118,9 @@ public class Landscape implements RenderComponent,UpdateComponent{
 	
 	
 	@Override
-	public void render(Context2d context) {
-		//context.setFillStyle(color);
+	public void render(float alpha) {
+		canvas.canvas().clear();
+		canvas.canvas().setFillColor(0xff11CC51);
 		int pos;
 		int bestPos = -1;
 		int bestI=-1;
@@ -122,21 +130,18 @@ public class Landscape implements RenderComponent,UpdateComponent{
 				bestPos = pos;
 				bestI = i;
 			} else {
-				context.fillRect(i*SEGMENT_WIDTH - slideF-1, 0, SEGMENT_WIDTH+2, topHeight[pos]);
-				context.fillRect(i*SEGMENT_WIDTH - slideF-1, height-bottomHeight[pos], SEGMENT_WIDTH+2, bottomHeight[pos]);
+				canvas.canvas().fillRect(i*SEGMENT_WIDTH - slideF-1, 0, SEGMENT_WIDTH+2, topHeight[pos]);
+				canvas.canvas().fillRect(i*SEGMENT_WIDTH - slideF-1, height-bottomHeight[pos], SEGMENT_WIDTH+2, bottomHeight[pos]);
 				if(centerHeight[pos] > 0) {
 					int gap = (height-bottomHeight[pos]-topHeight[pos]-centerHeight[pos])/2;
-					context.fillRect(i*SEGMENT_WIDTH - slideF-1, topHeight[pos]+gap, SEGMENT_WIDTH+2, centerHeight[pos]);
+					canvas.canvas().fillRect(i*SEGMENT_WIDTH - slideF-1, topHeight[pos]+gap, SEGMENT_WIDTH+2, centerHeight[pos]);
 				}
-				
 			}	
 		}
-		context.fill();
+		canvas.canvas().setFillColor(0xff1165CE);
 		if(bestPos >=0) {
-			//context.setFillStyle(bestColor);
-			context.fillRect(bestI*SEGMENT_WIDTH - slideF-1, 0, SEGMENT_WIDTH+2, topHeight[bestPos]);
-			context.fillRect(bestI*SEGMENT_WIDTH - slideF-1, height-bottomHeight[bestPos], SEGMENT_WIDTH+2, bottomHeight[bestPos]);
-			context.fill();
+			canvas.canvas().fillRect(bestI*SEGMENT_WIDTH - slideF-1, 0, SEGMENT_WIDTH+2, topHeight[bestPos]);
+			canvas.canvas().fillRect(bestI*SEGMENT_WIDTH - slideF-1, height-bottomHeight[bestPos], SEGMENT_WIDTH+2, bottomHeight[bestPos]);
 		}
 	}
 	

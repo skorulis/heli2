@@ -3,7 +3,6 @@ package com.skorulis.heli2.core;
 import static forplay.core.ForPlay.assetManager;
 import static forplay.core.ForPlay.log;
 
-import com.google.gwt.canvas.dom.client.Context2d;
 import com.skorulis.heli2.base.RectBoundBox;
 import com.skorulis.heli2.components.ClipLoc2f;
 import com.skorulis.heli2.components.Gen2fComponent;
@@ -22,12 +21,11 @@ public class Helicopter {
 	ClipLoc2f vel;
 	Gen2fComponent acc;
 	ImageLayer layer;
-  Image image;
-  Image image2;
+	Image image;
+	Image image2;
 	
 	Vec2f target;
 	boolean firing;
-	boolean secondFrame;
 	float frameSwitch;
 	
 	RectBoundBox box;
@@ -64,24 +62,26 @@ public class Helicopter {
 		loc.x = 0;
 	}
 
-	public void render(Context2d context) {
-	  if(secondFrame) {
-	    layer.setImage(image2);
+	public void render(float alpha) {
+	  if(frameSwitch > 0.2f) {
+		  if(layer.image()==image) {
+			  layer.setImage(image2);
+		  } else {
+			  layer.setImage(image);
+		  }
+		 frameSwitch=0;
 	  }
 	}
 
 	public void update(float delta) {
 		acc.update(delta);
 		vel.update(delta);
+		layer.setTranslation(loc.x, loc.y);
 		box.width = image.width()-8;
 		box.height = image.height()-8;
 		box.x = loc.x+4;
 		box.y = loc.y+4;
 		frameSwitch+=delta;
-		if(frameSwitch>0.2f) {
-			frameSwitch=0;
-			secondFrame=!secondFrame;
-		}
 	}
 	
 }

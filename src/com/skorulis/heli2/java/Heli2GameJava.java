@@ -9,7 +9,7 @@ public class Heli2GameJava {
 
   public static void main(String[] args) {
     JavaAssetManager assets = JavaPlatform.register().assetManager();
-    assets.setPathPrefix("src/forplay/sample/hello/resources");
+    assets.setPathPrefix("src/com/skorulis/heli2/resources");
     ForPlay.run(new Heli2Game());
   }
   

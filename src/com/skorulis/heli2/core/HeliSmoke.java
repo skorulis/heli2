@@ -1,11 +1,13 @@
 package com.skorulis.heli2.core;
 
-import com.google.gwt.canvas.dom.client.Context2d;
-import com.google.gwt.canvas.dom.client.CssColor;
+import static forplay.core.ForPlay.*;
 import com.skorulis.heli2.math.Vec2f;
 import com.skorulis.heli2.base.Entity;
 import com.skorulis.heli2.base.RenderComponent;
 import com.skorulis.heli2.base.UpdateComponent;
+
+import forplay.core.GroupLayer;
+import forplay.core.ImageLayer;
 
 public class HeliSmoke implements Entity,RenderComponent,UpdateComponent{
 
@@ -13,11 +15,14 @@ public class HeliSmoke implements Entity,RenderComponent,UpdateComponent{
 	private float life;
 	private com.skorulis.heli2.math.Vec2f loc;
 	public float landRate;
-	CssColor color = CssColor.make("rgba(55,55,55,1)");
+	private ImageLayer layer;
 	
-	public HeliSmoke(Vec2f loc){ 
+	public HeliSmoke(Vec2f loc,GroupLayer group){
+		layer = graphics().createImageLayer(assetManager().getImage("images/smoke.png"));
+		group.add(layer);
 		this.loc = new Vec2f(loc.x,loc.y);
 		life = 0.7f;
+		layer.setScale(life);
 	}
 	
 	public void update(float delta) {
@@ -30,12 +35,15 @@ public class HeliSmoke implements Entity,RenderComponent,UpdateComponent{
 	}
 
 	@Override
-	public void render(Context2d context) {
-		context.setGlobalAlpha(Math.max(life,0));
-		context.setFillStyle(color);
-		context.fillRect(loc.x, loc.y, 20, 20);
-		context.fill();
-		context.setGlobalAlpha(1);
+	public void render(float alpha) {
+		layer.setTranslation(loc.x,loc.y);
+		if(life >0) {
+			layer.setScale(life);
+		}
+	}
+	
+	public void destroy() {
+		layer.destroy();
 	}
 	
 }
