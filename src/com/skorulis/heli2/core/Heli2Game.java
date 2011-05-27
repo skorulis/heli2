@@ -9,6 +9,7 @@ import com.skorulis.heli2.ui.ClickEvent;
 import com.skorulis.heli2.ui.ClickHandler;
 
 
+import forplay.core.CanvasLayer;
 import forplay.core.Game;
 import forplay.core.Keyboard;
 import forplay.core.Pointer;
@@ -29,6 +30,8 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener{
   private boolean paused;
   private Button button;
   
+  private CanvasLayer textCanvas;
+  
   @Override
   public void init() {
 	graphics().setSize(canvasWidth, canvasHeight);
@@ -46,9 +49,11 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener{
     	bestScore = Float.parseFloat(best);
     }
     landscape.setBestScore(bestScore);
-    button = new Button(100, 60);
+    button = new Button(120, 50);
+    button.setBgImage("images/buttonBg.png");
+    button.textY=17; button.textX = 18;
     button.setText("Start");
-    button.setTranslation(150, 150);
+    button.setTranslation(220, 175);
     button.setClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent e) {
@@ -59,13 +64,17 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener{
     });
     graphics().rootLayer().add(button.layer());
     paused = true;
-    reset();
+    helicopter.layer.setScale(0.01f);
+    
+    textCanvas = graphics().createCanvasLayer(200, 100);
+    graphics().rootLayer().add(textCanvas);
   }
   
   public void reset() {
     for(HeliSmoke hs: smoke) {
       hs.destroy();
     }
+    helicopter.layer.setScale(1);
     smoke.clear();
 	helicopter.reset();		
 	landscape.reset();
@@ -131,23 +140,24 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener{
   	bestScore = Math.max(score, bestScore);
   	storage().setItem("score", ""+bestScore);
   	landscape.setBestScore(bestScore);
-  	button.setText("Restart");
+  	button.textX=7; button.setText("Restart"); 
   	button.setVisible(true);
   }
 
   @Override
   public void paint(float alpha) {
-    frameRate.frame();
+    frameRate.frame(currentTime());
 	  for(HeliSmoke hs: smoke) {
 		  hs.render(alpha);
 	  }
 	  
 	landscape.render(alpha);
     helicopter.render(alpha);
-    landscape.canvas.canvas().setFillColor(0xFF000000);
-    landscape.canvas.canvas().drawText("Score: " + (int)score, 10, 12);
-	landscape.canvas.canvas().drawText("Best: " + (int) Math.max(score, bestScore), 10, 24);
-	landscape.canvas.canvas().drawText("" + frameRate.getTmpFrameRate() + " frames a second",10,36);
+    textCanvas.canvas().clear();
+    textCanvas.canvas().setFillColor(0xFF000000);
+    textCanvas.canvas().drawText("Score: " + (int)score, 10, 12);
+    textCanvas.canvas().drawText("Best: " + (int) Math.max(score, bestScore), 10, 24);
+    textCanvas.canvas().drawText("" + frameRate.getTmpFrameRate() + " frames a second",10,36);
   }
 
   @Override

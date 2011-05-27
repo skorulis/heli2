@@ -5,12 +5,7 @@ import com.skorulis.heli2.base.RectBoundBox;
 import com.skorulis.heli2.base.RenderComponent;
 import com.skorulis.heli2.base.UpdateComponent;
 
-
-import forplay.core.CanvasLayer;
 import forplay.core.GroupLayer;
-import forplay.core.Layer;
-import forplay.core.SurfaceLayer;
-import static forplay.core.ForPlay.*; 
 
 public class Landscape implements RenderComponent,UpdateComponent{
 
@@ -26,13 +21,13 @@ public class Landscape implements RenderComponent,UpdateComponent{
 	float slideF;
 	int slideI;
 	
-	private int shrink;
-	private boolean moveUp;
-	private int minGap;
-	private static final int ABSOLUTE_MINGAP = 80;
-	private static final int MIN_CENTERGAP = 100;
-	private int bestX;
-	public CanvasLayer canvas;
+	int shrink;
+	boolean moveUp;
+	int minGap;
+	static final int ABSOLUTE_MINGAP = 80;
+	static final int MIN_CENTERGAP = 100;
+	int bestX;
+	private RenderComponent render;
 	
 	public Landscape(int width,int height,GroupLayer layer) {
 		this.width = width;
@@ -41,8 +36,8 @@ public class Landscape implements RenderComponent,UpdateComponent{
 		topHeight = new int[segs];
 		bottomHeight = new int[segs];
 		centerHeight = new int[segs];
-		canvas = graphics().createCanvasLayer(width, height);
-		layer.add(canvas);
+		//render = new LandscapePaintOriginal(this,layer);
+		render = new LandscapePaintSurface(this, layer);
 		reset();
 	}
 	
@@ -117,33 +112,7 @@ public class Landscape implements RenderComponent,UpdateComponent{
 	}
 	
 	
-	@Override
-	public void render(float alpha) {
-		canvas.canvas().clear();
-		canvas.canvas().setFillColor(0xff11CC51);
-		int pos;
-		int bestPos = -1;
-		int bestI=-1;
-		for(int i=0; i < topHeight.length; ++i) {
-			pos = (i+slideI)%topHeight.length;
-			if(bestPos<0 && isPosBestScore(i+slideI)) {
-				bestPos = pos;
-				bestI = i;
-			} else {
-				canvas.canvas().fillRect(i*SEGMENT_WIDTH - slideF-1, 0, SEGMENT_WIDTH+2, topHeight[pos]);
-				canvas.canvas().fillRect(i*SEGMENT_WIDTH - slideF-1, height-bottomHeight[pos], SEGMENT_WIDTH+2, bottomHeight[pos]);
-				if(centerHeight[pos] > 0) {
-					int gap = (height-bottomHeight[pos]-topHeight[pos]-centerHeight[pos])/2;
-					canvas.canvas().fillRect(i*SEGMENT_WIDTH - slideF-1, topHeight[pos]+gap, SEGMENT_WIDTH+2, centerHeight[pos]);
-				}
-			}	
-		}
-		canvas.canvas().setFillColor(0xff1165CE);
-		if(bestPos >=0) {
-			canvas.canvas().fillRect(bestI*SEGMENT_WIDTH - slideF-1, 0, SEGMENT_WIDTH+2, topHeight[bestPos]);
-			canvas.canvas().fillRect(bestI*SEGMENT_WIDTH - slideF-1, height-bottomHeight[bestPos], SEGMENT_WIDTH+2, bottomHeight[bestPos]);
-		}
-	}
+	
 	
 	public int getPos(int x) {
 		return (x/SEGMENT_WIDTH+slideI)%topHeight.length;
@@ -198,4 +167,11 @@ public class Landscape implements RenderComponent,UpdateComponent{
 		bestX = ((int)score)/SEGMENT_WIDTH;
 	}
 
+	@Override
+	public void render(float alpha) {
+		render.render(alpha);
+	}
+	
+
+	
 }

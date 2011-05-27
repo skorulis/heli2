@@ -9,13 +9,15 @@ import forplay.core.Pointer;
 public class Button implements Pointer.Listener{
 
 	private boolean pressed;
-  private CanvasLayer layer;
+	private CanvasLayer layer;
 	private int textColor;
 	private String text;
 	private Image bgImage;
 	private ClickHandler clickHandler;
 	private float transX,transY;
 	private boolean visible;
+	
+	public int textX,textY;
 	
 	
 	public Button(int width,int height) {
@@ -47,6 +49,11 @@ public class Button implements Pointer.Listener{
 	  redraw();
 	}
 	
+	public void setBgImage(String path) {
+		this.bgImage = assetManager().getImage(path);
+		redraw();
+	}
+	
 	public void setClickHandler(ClickHandler click) {
 	  this.clickHandler = click;
 	}
@@ -57,11 +64,10 @@ public class Button implements Pointer.Listener{
 	    layer.canvas().drawImage(bgImage, 0, 0, layer.canvas().width(), layer.canvas().height());
 	  }
 	  
-	  layer.canvas().setFillColor(0xFFFF0000);
-    layer.canvas().fillRect(0, 0, layer.canvas().width(), layer.canvas().height());
-	  layer.canvas().setFillColor(textColor);
-	  layer.canvas().drawText(text, 0, 20);
-	  
+	  if(text!=null) {
+		  layer.canvas().setFillColor(textColor);
+		  layer.canvas().drawText(text, textX, textY);
+	  }
 	}
 
   @Override
