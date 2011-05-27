@@ -1,0 +1,16 @@
+
+<module rename-to='heli2'>
+  <inherits name='forplay.ForPlay'/>
+
+  <source path='core'/>
+  <source path='html'/>
+  <source path='components'/>
+  <source path='base'/>
+  <source path='math'/>
+  <source path='ui'/>
+  
+
+  <public path="resources" />
+
+  <entry-point class='com.skorulis.heli2.html.Heli2GameHtml'/>
+</module>

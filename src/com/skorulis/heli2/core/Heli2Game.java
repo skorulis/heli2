@@ -1,10 +1,12 @@
 package com.skorulis.heli2.core;
 
 import static forplay.core.ForPlay.*;
-
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
+
+import com.skorulis.heli2.ui.Button;
+import com.skorulis.heli2.ui.ClickEvent;
+import com.skorulis.heli2.ui.ClickHandler;
 
 
 import forplay.core.Game;
@@ -25,6 +27,7 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener{
   private final static int canvasWidth = 600;
   private final static int canvasHeight = 400;
   private boolean paused;
+  private Button button;
   
   @Override
   public void init() {
@@ -39,16 +42,31 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener{
     pointer().setListener(this);
     keyboard().setListener(this);
     String best = storage().getItem("score");
-    
     if(best!=null) {
     	bestScore = Float.parseFloat(best);
     }
-     
+    landscape.setBestScore(bestScore);
+    button = new Button(100, 60);
+    button.setText("Start");
+    button.setTranslation(150, 150);
+    button.setClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent e) {
+        reset();
+        paused = false;
+        button.setVisible(false);
+      }
+    });
+    graphics().rootLayer().add(button.layer());
+    paused = true;
     reset();
   }
   
   public void reset() {
-	smoke.clear();
+    for(HeliSmoke hs: smoke) {
+      hs.destroy();
+    }
+    smoke.clear();
 	helicopter.reset();		
 	landscape.reset();
 	for(int i=0; i < MAX_KEYS; ++i) {
@@ -85,8 +103,7 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener{
 	} else {
 		smokeUpdate+=delta;
 	}
-    score+=delta*landscape.slideRate;
-    frameRate.addFrame(delta);
+    score+=delta*landscape.slideRate;    
     checkKeys(delta);
     
   }
@@ -110,15 +127,17 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener{
   }
   
   private void onDeath() {
-	paused = true;
-	bestScore = Math.max(score, bestScore);
-	storage().setItem("score", ""+bestScore);
-	landscape.setBestScore(bestScore);
-	
+    paused = true;
+  	bestScore = Math.max(score, bestScore);
+  	storage().setItem("score", ""+bestScore);
+  	landscape.setBestScore(bestScore);
+  	button.setText("Restart");
+  	button.setVisible(true);
   }
 
   @Override
   public void paint(float alpha) {
+    frameRate.frame();
 	  for(HeliSmoke hs: smoke) {
 		  hs.render(alpha);
 	  }
@@ -139,16 +158,18 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener{
 @Override
 public void onPointerStart(float x, float y) {
 	mouseDown = true;
+	button.onPointerStart(x, y);
 }
 
 @Override
 public void onPointerEnd(float x, float y) {
 	mouseDown = false;
+	button.onPointerEnd(x, y);
 }
 
 @Override
 public void onPointerDrag(float x, float y) {
-	
+	button.onPointerDrag(x, y);
 }
 
 @Override
@@ -160,5 +181,6 @@ public void onKeyDown(int keyCode) {
 public void onKeyUp(int keyCode) {
 	keys[keyCode] = false;
 }
+
 
 }
