@@ -1,6 +1,8 @@
 package com.skorulis.heli2.core;
 
 import static forplay.core.ForPlay.*;
+
+import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -12,9 +14,11 @@ import com.skorulis.heli2.ui.ClickHandler;
 import forplay.core.CanvasLayer;
 import forplay.core.Game;
 import forplay.core.Keyboard;
+import forplay.core.Net.Callback;
 import forplay.core.Pointer;
+import forplay.java.json.JSONObject;
 
-public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener{
+public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener,Callback{
 
   private LinkedList<HeliSmoke> smoke;
   private int MAX_KEYS = 256;
@@ -29,6 +33,8 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener{
   private final static int canvasHeight = 400;
   private boolean paused;
   private Button button;
+  private int scoreId;
+  private int rank;
   
   private CanvasLayer textCanvas;
   
@@ -44,15 +50,24 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener{
     
     pointer().setListener(this);
     keyboard().setListener(this);
-    String best = storage().getItem("score");
-    if(best!=null) {
-    	bestScore = Float.parseFloat(best);
+    String bestS = storage().getItem("score");
+    String rankS = storage().getItem("rank");
+    String idS = storage().getItem("id");
+    if(bestS!=null) {
+    	bestScore = Float.parseFloat(bestS);
     }
+    if(rankS!=null) {
+    	rank = Integer.parseInt(rankS);
+    }
+    if(idS!=null) {
+    	scoreId = Integer.parseInt(idS);
+    }
+    
     landscape.setBestScore(bestScore);
     button = new Button(120, 50);
+    graphics().rootLayer().add(button.layer());
     button.setBgImage("images/buttonBg.png");
-    button.textY=17; button.textX = 18;
-    button.setText("Start");
+    button.setForeImage("images/startText.png");
     button.setTranslation(220, 175);
     button.setClickHandler(new ClickHandler() {
       @Override
@@ -62,7 +77,7 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener{
         button.setVisible(false);
       }
     });
-    graphics().rootLayer().add(button.layer());
+    
     paused = true;
     helicopter.layer.setScale(0.01f);
     
@@ -74,6 +89,7 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener{
     for(HeliSmoke hs: smoke) {
       hs.destroy();
     }
+    score = 0;
     helicopter.layer.setScale(1);
     smoke.clear();
 	helicopter.reset();		
@@ -137,11 +153,24 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener{
   
   private void onDeath() {
     paused = true;
-  	bestScore = Math.max(score, bestScore);
+    
+    if(score > bestScore) {
+    	bestScore = score;
+    }
+    if(bestScore > 500) {
+    	String netUrl = Config.instance().scoreURL()+"?score="+(int)bestScore+"&id="+scoreId;
+    	net().get(netUrl,this);
+	}
+
   	storage().setItem("score", ""+bestScore);
+  	
   	landscape.setBestScore(bestScore);
-  	button.textX=7; button.setText("Restart"); 
+  	button.setForeImage("images/restartText.png"); 
   	button.setVisible(true);
+  	
+  	
+  	
+  	
   }
 
   @Override
@@ -156,7 +185,14 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener{
     textCanvas.canvas().clear();
     textCanvas.canvas().setFillColor(0xFF000000);
     textCanvas.canvas().drawText("Score: " + (int)score, 10, 12);
-    textCanvas.canvas().drawText("Best: " + (int) Math.max(score, bestScore), 10, 24);
+    
+    
+    String bestText = "Best: " + (int) Math.max(score, bestScore);
+    if(rank > 0) {
+    	bestText+= " (rank " + rank + ")";
+    }
+    textCanvas.canvas().drawText(bestText, 10, 24);
+    
     textCanvas.canvas().drawText("" + frameRate.getTmpFrameRate() + " frames a second",10,36);
   }
 
@@ -190,6 +226,20 @@ public void onKeyDown(int keyCode) {
 @Override
 public void onKeyUp(int keyCode) {
 	keys[keyCode] = false;
+}
+
+@Override
+public void success(String response) {
+	String[] tokens = response.split(" ");
+	scoreId = Integer.parseInt(tokens[0].trim());
+	rank = Integer.parseInt(tokens[1].trim());
+	storage().setItem("rank", ""+rank);
+	storage().setItem("id", ""+scoreId);
+}
+
+@Override
+public void failure(Throwable error) {
+log().debug("NET FAIL " + error);
 }
 
 

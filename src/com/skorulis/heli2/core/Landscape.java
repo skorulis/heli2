@@ -36,8 +36,8 @@ public class Landscape implements RenderComponent,UpdateComponent{
 		topHeight = new int[segs];
 		bottomHeight = new int[segs];
 		centerHeight = new int[segs];
-		//render = new LandscapePaintOriginal(this,layer);
-		render = new LandscapePaintSurface(this, layer);
+		render = new LandscapePaintOriginal(this,layer);
+		//render = new LandscapePaintSurface(this, layer);
 		reset();
 	}
 	

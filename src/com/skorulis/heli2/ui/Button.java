@@ -5,13 +5,15 @@ import static forplay.core.ForPlay.*;
 import forplay.core.CanvasLayer;
 import forplay.core.Image;
 import forplay.core.Pointer;
+import forplay.core.ResourceCallback;
 
-public class Button implements Pointer.Listener{
+public class Button implements Pointer.Listener,ResourceCallback<Image>{
 
 	private boolean pressed;
 	private CanvasLayer layer;
 	private int textColor;
 	private String text;
+	private Image foreImage;
 	private Image bgImage;
 	private ClickHandler clickHandler;
 	private float transX,transY;
@@ -44,14 +46,32 @@ public class Button implements Pointer.Listener{
 	  this.textColor = color;
 	}
 	
+private void redrawNowOrLater(Image image) {
+	if(image==null || image.isReady()) {
+		redraw();
+	} else {
+		image.addCallback(this);
+	}
+}
+	
+	public void setForeImage(Image image) {
+		this.foreImage=image;
+		redrawNowOrLater(foreImage);
+	}
+	
+	public void setForeImage(String path) {
+		this.foreImage = assetManager().getImage(path);
+		redrawNowOrLater(foreImage);
+	}
+	
 	public void setBgImage(Image image) {
 	  this.bgImage = image;
-	  redraw();
+	  redrawNowOrLater(bgImage);
 	}
 	
 	public void setBgImage(String path) {
 		this.bgImage = assetManager().getImage(path);
-		redraw();
+		redrawNowOrLater(bgImage);
 	}
 	
 	public void setClickHandler(ClickHandler click) {
@@ -67,6 +87,9 @@ public class Button implements Pointer.Listener{
 	  if(text!=null) {
 		  layer.canvas().setFillColor(textColor);
 		  layer.canvas().drawText(text, textX, textY);
+	  }
+	  if(foreImage!=null) {
+		  layer.canvas().drawImage(foreImage, 0, 0, layer.canvas().width(), layer.canvas().height());
 	  }
 	}
 
@@ -86,8 +109,12 @@ public class Button implements Pointer.Listener{
   }
 
   public void setVisible(boolean visible) {
-    layer.setScale(visible?1:0.0001f);
-    this.visible = visible;
+	  this.visible = visible;
+	  if(visible) {
+		redraw();
+	} else {
+		layer.canvas().clear();
+	}
   }
   
   public boolean visible() {
@@ -106,6 +133,17 @@ public class Button implements Pointer.Listener{
     }
     return (x >= transX && y >= transY && x <=transX+layer.canvas().width() && y <= transY+layer.canvas().width());
   }
+
+@Override
+public void done(Image resource) {
+	redraw();
+}
+
+@Override
+public void error(Throwable err) {
+	// TODO Auto-generated method stub
+	
+}
 	
 	
 	

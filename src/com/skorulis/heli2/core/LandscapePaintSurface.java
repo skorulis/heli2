@@ -42,6 +42,12 @@ public class LandscapePaintSurface implements RenderComponent{
 		if(bestPos >=0) {
 			surface.surface().fillRect(bestI*Landscape.SEGMENT_WIDTH - landscape.slideF-1, 0, Landscape.SEGMENT_WIDTH+2, landscape.topHeight[bestPos]);
 			surface.surface().fillRect(bestI*Landscape.SEGMENT_WIDTH - landscape.slideF-1, landscape.height-landscape.bottomHeight[bestPos], Landscape.SEGMENT_WIDTH+2, landscape.bottomHeight[bestPos]);
+			
+			if(landscape.centerHeight[bestPos] > 0) {
+				int gap = (landscape.height-landscape.bottomHeight[bestPos]-landscape.topHeight[bestPos]-landscape.centerHeight[bestPos])/2;
+				surface.surface().fillRect(bestI*Landscape.SEGMENT_WIDTH - landscape.slideF-1, landscape.topHeight[bestPos]+gap, Landscape.SEGMENT_WIDTH+2, landscape.centerHeight[bestPos]);
+			}
+			
 		}
 	}
 	
