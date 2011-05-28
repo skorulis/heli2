@@ -80,7 +80,7 @@ public class Helicopter {
 		box.width = image.width()-8;
 		box.height = image.height()-8;
 		box.x = loc.x+16;
-		box.y = loc.y+16;
+		box.y = loc.y+4;
 		frameSwitch+=delta;
 	}
 	
