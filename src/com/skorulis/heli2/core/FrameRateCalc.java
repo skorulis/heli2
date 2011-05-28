@@ -37,8 +37,12 @@ public class FrameRateCalc {
 		return frames/time;
 	}
 	
-	public double getTmpFrameRate() {
+	public double getTmpFramerate() {
 		return tmpFrameRate;
+	}
+	
+	public String getTmpFramerateText() {
+		return ""+(int) tmpFrameRate;
 	}
 	
 }
