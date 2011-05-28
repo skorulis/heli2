@@ -167,10 +167,7 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener,Callba
   	landscape.setBestScore(bestScore);
   	button.setForeImage("images/restartText.png"); 
   	button.setVisible(true);
-  	
-  	
-  	
-  	
+
   }
 
   @Override
@@ -230,11 +227,17 @@ public void onKeyUp(int keyCode) {
 
 @Override
 public void success(String response) {
-	String[] tokens = response.split(" ");
-	scoreId = Integer.parseInt(tokens[0].trim());
-	rank = Integer.parseInt(tokens[1].trim());
-	storage().setItem("rank", ""+rank);
-	storage().setItem("id", ""+scoreId);
+	log().debug("RES" +response);
+	try {
+		String[] tokens = response.split(" ");
+		scoreId = Integer.parseInt(tokens[0].trim());
+		rank = Integer.parseInt(tokens[1].trim());
+		storage().setItem("rank", ""+rank);
+		storage().setItem("id", ""+scoreId);
+	} catch(Exception e) {
+		e.printStackTrace();
+	}
+	
 }
 
 @Override

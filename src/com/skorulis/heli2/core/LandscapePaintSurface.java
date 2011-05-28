@@ -1,3 +1,5 @@
+//Class to paint the landscape using a surface
+
 package com.skorulis.heli2.core;
 
 import static forplay.core.ForPlay.*;

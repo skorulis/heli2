@@ -79,8 +79,8 @@ public class Helicopter {
 		layer.setTranslation(loc.x, loc.y);
 		box.width = image.width()-8;
 		box.height = image.height()-8;
-		box.x = loc.x+4;
-		box.y = loc.y+4;
+		box.x = loc.x+16;
+		box.y = loc.y+16;
 		frameSwitch+=delta;
 	}
 	

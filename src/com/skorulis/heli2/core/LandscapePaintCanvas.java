@@ -1,3 +1,5 @@
+//Class to paint the landscape using a canvas
+
 package com.skorulis.heli2.core;
 
 import static forplay.core.ForPlay.graphics;
@@ -7,12 +9,12 @@ import com.skorulis.heli2.base.RenderComponent;
 import forplay.core.CanvasLayer;
 import forplay.core.GroupLayer;
 
-public class LandscapePaintOriginal implements RenderComponent{
+public class LandscapePaintCanvas implements RenderComponent{
 
 	private Landscape landscape;
 	public CanvasLayer canvas;
 	
-	public LandscapePaintOriginal(Landscape landscape,GroupLayer layer) {
+	public LandscapePaintCanvas(Landscape landscape,GroupLayer layer) {
 		this.landscape = landscape;
 		canvas = graphics().createCanvasLayer(landscape.width, landscape.height);
 		layer.add(canvas);
@@ -21,7 +23,7 @@ public class LandscapePaintOriginal implements RenderComponent{
 	@Override
 	public void render(float alpha) {
 		canvas.canvas().clear();
-		canvas.canvas().setFillColor(0xff11CC51);
+		canvas.canvas().setFillColor(0xffCC2251);
 		int pos;
 		int bestPos = -1;
 		int bestI=-1;

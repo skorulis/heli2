@@ -1,5 +1,7 @@
 package com.skorulis.heli2.core;
 
+import java.util.ArrayList;
+
 import com.skorulis.heli2.base.Random;
 import com.skorulis.heli2.base.RectBoundBox;
 import com.skorulis.heli2.base.RenderComponent;
@@ -27,18 +29,21 @@ public class Landscape implements RenderComponent,UpdateComponent{
 	static final int ABSOLUTE_MINGAP = 80;
 	static final int MIN_CENTERGAP = 100;
 	int bestX;
+	private RenderComponent render1;
 	private RenderComponent render;
+	ArrayList<Integer> toRedraw;
 	
 	public Landscape(int width,int height,GroupLayer layer) {
 		this.width = width;
 		this.height = height;
-		int segs = (width/SEGMENT_WIDTH)+1;
+		int segs = (width/SEGMENT_WIDTH)+2;
 		topHeight = new int[segs];
 		bottomHeight = new int[segs];
 		centerHeight = new int[segs];
-		render = new LandscapePaintOriginal(this,layer);
+		//render1 = new LandscapePaintCanvas(this,layer);
 		//render = new LandscapePaintSurface(this, layer);
-		reset();
+		render = new LandscapePaintGroup(this, layer);
+		toRedraw = new ArrayList<Integer>();
 	}
 	
 	public void reset() {
@@ -77,11 +82,9 @@ public class Landscape implements RenderComponent,UpdateComponent{
 				shrink = -1;
 			}
 		}
-		
-		
-		
+
 		topHeight[position] = Math.min(Math.max(prevTop + Random.nextInt(20)*shrink,0),height-minGap);
-		bottomHeight[position] = Math.min(Math.max(prevBottom + Random.nextInt(20)*shrink,0),height-minGap);
+		bottomHeight[position] = Math.min(Math.max(prevBottom + Random.nextInt(20)*shrink,0),height-minGap);		
 		int total = topHeight[position] + bottomHeight[position]; 
 		if(total > height-minGap) {
 			if(moveUp) {
@@ -109,6 +112,7 @@ public class Landscape implements RenderComponent,UpdateComponent{
 		} else {
 			boringBottom = 0;
 		}
+		toRedraw.add(new Integer(position));
 	}
 	
 	
@@ -123,6 +127,7 @@ public class Landscape implements RenderComponent,UpdateComponent{
 		slideF+=delta*slideRate;
 		if(slideF > SEGMENT_WIDTH) {
 			slideF-=SEGMENT_WIDTH;
+			
 			generatePosition(slideI%topHeight.length);
 			slideI++;
 			if(slideI%5==0 && minGap > ABSOLUTE_MINGAP) {
@@ -169,7 +174,11 @@ public class Landscape implements RenderComponent,UpdateComponent{
 
 	@Override
 	public void render(float alpha) {
-		render.render(alpha);
+		//render1.render(alpha);
+		if(render!=null) {
+			render.render(alpha);
+		}
+		
 	}
 	
 
