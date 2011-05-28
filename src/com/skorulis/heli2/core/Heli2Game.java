@@ -143,9 +143,6 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener,Callba
 		if(keys['A']) {
 			helicopter.vel.x+= -80*delta;
 		}
-		if(keys['S']) {
-			//helicopter.vel.y+= 80*delta;
-		}
 		if(landscape.collides(helicopter.box)) {
 			onDeath();
 		}
@@ -157,8 +154,9 @@ public class Heli2Game implements Game,Pointer.Listener,Keyboard.Listener,Callba
     if(score > bestScore) {
     	bestScore = score;
     }
-    if(bestScore > 500) {
-    	String netUrl = Config.instance().scoreURL()+"?score="+(int)bestScore+"&id="+scoreId;
+    if(bestScore > Config.instance().minScoreSubmit()) {
+      long ts = (long)currentTime();
+    	String netUrl = Config.instance().scoreURL()+"?score="+(int)bestScore+"&id="+scoreId+"&timestamp="+ts;
     	net().get(netUrl,this);
 	}
 
