@@ -29,7 +29,6 @@ public class Landscape implements RenderComponent,UpdateComponent{
 	static final int ABSOLUTE_MINGAP = 80;
 	static final int MIN_CENTERGAP = 100;
 	int bestX;
-	private RenderComponent render1;
 	private RenderComponent render;
 	ArrayList<Integer> toRedraw;
 	
@@ -40,7 +39,7 @@ public class Landscape implements RenderComponent,UpdateComponent{
 		topHeight = new int[segs];
 		bottomHeight = new int[segs];
 		centerHeight = new int[segs];
-		//render1 = new LandscapePaintCanvas(this,layer);
+		//render = new LandscapePaintCanvas(this,layer);
 		//render = new LandscapePaintSurface(this, layer);
 		render = new LandscapePaintGroup(this, layer);
 		toRedraw = new ArrayList<Integer>();

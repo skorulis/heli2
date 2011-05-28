@@ -12,7 +12,8 @@ public class Heli2GameHtml extends HtmlGame{
   @Override
   public void start() {
     HtmlAssetManager assets = HtmlPlatform.register().assetManager();
-    assets.setPathPrefix("heli2/");
+    assets.setPathPrefix("/heli2/");
+    //assets.setPathPrefix("../../content/gwt/heli2/heli2/");
     ForPlay.run(new Heli2Game());
   }
   
